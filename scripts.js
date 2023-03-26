@@ -143,19 +143,19 @@ for(let i = 0; i<operatorButtons.length;i++){
     });
 }
 
-const executeButton = document.getElementsByClassName("executeButton")[0];
-executeButton.addEventListener("click",function(){
+function execute(){
     equation.dataset.num2 = currentNum.dataset.cvalue;
     if (equation.dataset.operator == ""){
         return;
     }
+    let result = "";
     switch(equation.dataset.operator){
-            case '÷':
-                if (equation.dataset.num2 == 0){
-                    alert("Don't divide by zero, resetting calculator");
-                    clearCurrent();
-                    return;
-                }
+        case '÷':
+            if (equation.dataset.num2 == 0){
+                alert("Don't divide by zero, resetting calculator");
+                clearCurrent();
+                return;
+            }
         case 'x':
             result = multiply(equation.dataset.num1,equation.dataset.num2);
             break;
@@ -169,11 +169,37 @@ executeButton.addEventListener("click",function(){
     equation.innerHTML = equation.dataset.num1 + " " + 
         equation.dataset.operator + " " + equation.dataset.num2 + " =";
     currentNum.innerHTML = result;
-    currentNum.dataset.cvalue = "";
+    currentNum.dataset.cvalue = result;
     currentNum.dataset.dot = "0";
-    equation.dataset.num1 = result;
+    for(let i = 0; i < result.length;i++){
+        if(result[i] == '.'){
+            currentNum.dataset.dot = '1';
+            break;
+        }
+    }
+    equation.dataset.num1 = "";
     equation.dataset.num2 = "";
     equation.dataset.operator = "";
-});
 
+}
+const executeButton = document.getElementsByClassName("executeButton")[0];
+executeButton.addEventListener("click",function(){execute()});
+
+function convertOperator(keyboardOperator) {
+  if (keyboardOperator === '/') return '÷'
+  if (keyboardOperator === '*') return 'x'
+  if (keyboardOperator === '-') return '−'
+  if (keyboardOperator === '+') return '+'
+}
+
+function handleKeyboardInput(e){
+  if (e.key >= 0 && e.key <= 9) updateCurrentNum(e.key);
+  if (e.key === '.') updateCurrentNum(e.key);
+  if (e.key === '=' || e.key === 'Enter') execute(); 
+  if (e.key === 'Backspace') deleteCurrent()
+  if (e.key === 'Escape') clearCurrent()
+  if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/')
+    operatorExecute(convertOperator(e.key))
+}
+window.addEventListener('keydown', handleKeyboardInput)
 
